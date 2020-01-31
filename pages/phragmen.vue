@@ -74,6 +74,10 @@
             </template>
             <template slot="pub_key_stash" slot-scope="data">
               <div class="d-block d-sm-block d-md-none d-lg-none d-xl-none text-center">
+                 <a class="favorite" v-on:click="toggleFavorite(data.item.accountId)">
+                  <i v-if="data.item.favorite" class="fas fa-star" style="color: #f1bd23" v-b-tooltip.hover title="Remove from Favorites"></i>
+                  <i v-else class="fas fa-star" style="color: #e6dfdf;" v-b-tooltip.hover title="Add to Favorites"></i>
+                </a>
                 <div v-if="hasIdentity(data.item.pub_key_stash)">
                   <div v-if="getIdentity(data.item.pub_key_stash).logo !== ''">
                     <img v-bind:src="getIdentity(data.item.pub_key_stash).logo" class="identity mt-2" />
@@ -148,6 +152,14 @@
                 {{ formatAmount(data.item.stake_total) }}
               </p>
             </template>
+            <template slot="favorite" slot-scope="data">
+              <p class="text-center mb-0">
+                <a class="favorite" v-on:click="toggleFavorite(data.item.accountIndex)">
+                  <i v-if="data.item.favorite" class="fas fa-star" style="color: #f1bd23" v-b-tooltip.hover title="Remove from Favorites"></i>
+                  <i v-else class="fas fa-star" style="color: #e6dfdf;" v-b-tooltip.hover title="Add to Favorites"></i>
+                </a>
+              </p>
+            </template>
           </b-table>
           <b-pagination
             v-model="currentPage"
@@ -196,9 +208,11 @@ export default {
         { key: 'other_stake_count', label: 'Voters', sortable: true, class: `d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell` },
         { key: 'stake_validator', label: 'Self stake', sortable: true, class: `d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell` },
         { key: 'other_stake_sum', label: 'Voters stake', sortable: true, class: `d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell` },
-        { key: 'stake_total', label: 'Total stake', sortable: true, class: `d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell` }
+        { key: 'stake_total', label: 'Total stake', sortable: true, class: `d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell` },
+        { key: 'favorite', label: '⭐', sortable: true, class: `d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell` }
       ],
       blockExplorer,
+      favorites: [],
       polling: null
     }
   },
@@ -222,9 +236,11 @@ export default {
           ...candidate,
           identity,
           kusamaIdentity,
-          accountIndex: this.indexes[candidate.pub_key_stash]
+          accountIndex: this.indexes[candidate.pub_key_stash],
+          favorite: this.isFavorite(candidate.accountIndex)
         });
       }
+      console.log('candidates', candidates)
       return candidates;
     },
     validator_count() {
@@ -253,6 +269,11 @@ export default {
   },
   created: function () {
     var vm = this;
+
+    // Get favorites from cookie
+    if (this.$cookies.get('favorites')) {
+      this.favorites = this.$cookies.get('favorites');
+    }
 
     // Force update of network info
     vm.$store.dispatch('network/update');
@@ -298,6 +319,28 @@ export default {
     clearInterval(this.pollingIndexes);
   },
   methods: {
+    toggleFavorite(validator) {
+      // Receives validator accountId
+      if (this.isFavorite(validator)) {
+        this.favorites.splice(this.getIndex(validator), 1);
+      } else {
+        this.favorites.push({ accountId: validator, name: 'Edit phragmen name...'});
+      }
+      return true;
+    },
+    isFavorite(validator) {
+      // console.log('isFavoite', this.favorites)
+      // Receives validator accountId
+      // if (this.favorites != undefined) {
+        for (var i=0; i < this.favorites.length; i++) {
+          if (this.favorites[i].accountId == validator) {
+            return true;
+          }
+        }
+      // }
+      // console.log('sale false isFavorite')
+      return false;
+    },
     getIndex(validator) {
       // Receives validator accountId
       for (var i=0; i < this.favorites.length; i++) {
