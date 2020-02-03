@@ -398,10 +398,14 @@ export default {
 body {
   font-size: 0.9rem;
 }
+.favorite {
+  cursor: pointer;
+  font-size: 1.1rem;
+}
 .page-phragmen .favorite {
   position: absolute;
-  top: 0.2rem;
-  right: 0.2rem;
+/*   top: 0.2rem;
+  right: 0.2rem; */
   z-index: 10;
   font-size: 1.1rem;
 }
