@@ -225,19 +225,22 @@ export default {
       for(let i = 0; i < this.$store.state.phragmen.info.candidates.length; i++) {
         let candidate = this.$store.state.phragmen.info.candidates[i];
         let identity = "";
+        let kusamaIdentity = "";
+        const accountIndex = this.indexes[candidate.pub_key_stash]
+        
         if (this.hasIdentity(candidate.pub_key_stash)) {
           identity = this.getIdentity(candidate.pub_key_stash);
         }
-        let kusamaIdentity = "";
         if (this.hasKusamaIdentity(candidate.pub_key_stash)) {
           kusamaIdentity = this.getKusamaIdentity(candidate.pub_key_stash);
         }
+        
         candidates.push({
           ...candidate,
           identity,
           kusamaIdentity,
-          accountIndex: this.indexes[candidate.pub_key_stash],
-          favorite: this.isFavorite(candidate.accountIndex)
+          accountIndex,
+          favorite: this.isFavorite(accountIndex)
         });
       }
       console.log('candidates', candidates)
@@ -329,16 +332,12 @@ export default {
       return true;
     },
     isFavorite(validator) {
-      // console.log('isFavoite', this.favorites)
       // Receives validator accountId
-      // if (this.favorites != undefined) {
-        for (var i=0; i < this.favorites.length; i++) {
-          if (this.favorites[i].accountId == validator) {
-            return true;
-          }
+      for (var i=0; i < this.favorites.length; i++) {
+        if (this.favorites[i].accountId == validator) {
+          return true;
         }
-      // }
-      // console.log('sale false isFavorite')
+      }
       return false;
     },
     getIndex(validator) {
@@ -370,7 +369,7 @@ export default {
       let filteredArray =  this.$store.state.stakingIdentities.list.filter(obj => {
         return obj.accountId === stashId
       });
-      console.log(filteredArray[0]);
+      // console.log(filteredArray[0]);
       return filteredArray[0].identity;
     },
     onFiltered(filteredItems) {
@@ -381,7 +380,6 @@ export default {
   },
   watch: {
     favorites: function (val) {
-      //console.log(val);
       this.$cookies.set('favorites', val, {
         path: '/',
         maxAge: 60 * 60 * 24 * 7
