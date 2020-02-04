@@ -74,10 +74,10 @@
             </template>
             <template slot="pub_key_stash" slot-scope="data">
               <div class="d-block d-sm-block d-md-none d-lg-none d-xl-none text-center">
-                 <a class="favorite" v-on:click="toggleFavorite(data.item.accountId)">
+                 <!-- <a class="favorite" v-on:click="toggleFavorite(data.item.accountId)">
                   <i v-if="data.item.favorite" class="fas fa-star" style="color: #f1bd23" v-b-tooltip.hover title="Remove from Favorites"></i>
                   <i v-else class="fas fa-star" style="color: #e6dfdf;" v-b-tooltip.hover title="Add to Favorites"></i>
-                </a>
+                </a> -->
                 <div v-if="hasIdentity(data.item.pub_key_stash)">
                   <div v-if="getIdentity(data.item.pub_key_stash).logo !== ''">
                     <img v-bind:src="getIdentity(data.item.pub_key_stash).logo" class="identity mt-2" />
@@ -402,8 +402,6 @@ body {
 }
 .page-phragmen .favorite {
   position: absolute;
-/*   top: 0.2rem;
-  right: 0.2rem; */
   z-index: 10;
   font-size: 1.1rem;
 }
