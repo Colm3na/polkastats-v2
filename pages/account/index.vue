@@ -51,10 +51,6 @@
                       <td>Account Index</td>
                       <td class="text-right">{{ account.accountIndex }}</td>
                     </tr>
-                    <tr v-if="account.nickname">
-                      <td>Nickname</td>
-                      <td class="text-right">{{ account.nickname }}</td>
-                    </tr>
                     <tr v-if="account.identity.display">
                       <td>Identity::display</td>
                       <td class="text-right">{{ account.identity.display }}</td>
