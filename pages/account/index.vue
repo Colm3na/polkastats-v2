@@ -86,6 +86,10 @@
                         </span>
                       </td>
                     </tr>
+                    <tr v-if="account.identity.twitter">
+                      <td>Identity::twitter</td>
+                      <td class="text-right"><a :href="account.identity.twitter" target="_blank">{{ account.identity.twitter }}</a></td>
+                    </tr>
                     <tr>
                       <td>Account Nonce</td>
                       <td class="text-right">{{ account.balances.accountNonce }}</td>
@@ -168,6 +172,18 @@ export default {
   },
   computed: {
     accounts() {
+      if (this.$store.state.accounts.list.length > 0) {
+        const index = this.getIndex(this.$store.state.accounts.list);
+        const account = this.$store.state.accounts.list[index];
+        
+        if (this.hasIdentity(account.accountId)) {
+          const identity = this.getIdentity(account.accountId);
+          this.$store.state.accounts.list[index].identity.twitter = identity.twitter;
+        }
+        
+        this.totalRows = this.$store.state.accounts.list.length;
+      }
+
       return this.$store.state.accounts.list;
     }
   },
@@ -180,6 +196,11 @@ export default {
     }
     this.totalRows = this.$store.state.accounts.list.length;
 
+    // Force update of indentity list if empty
+    if (this.$store.state.identities.list.length == 0) {
+      vm.$store.dispatch('identities/update');
+    }
+
     // Update data every 5 minutes
     this.polling = setInterval(() => {
       vm.$store.dispatch('accounts/update');
@@ -189,6 +210,22 @@ export default {
   },
   beforeDestroy: function () {
     clearInterval(this.polling);
+  },
+   methods: {
+    getIndex(accounts) {
+      return accounts.findIndex(account => account.accountId === this.accountId);
+    },
+    hasIdentity(stashId) {
+      return this.$store.state.identities.list.some(obj => {
+        return obj.stashId === stashId;
+      });
+    },
+    getIdentity(stashId) {
+      let filteredArray =  this.$store.state.identities.list.filter(obj => {
+        return obj.stashId === stashId
+      });
+      return filteredArray[0];
+    },
   },
   watch: {
     $route () {
