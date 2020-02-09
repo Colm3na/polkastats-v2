@@ -75,6 +75,10 @@
                       <td>Identity::web</td>
                       <td class="text-right"><a :href="account.identity.web" target="_blank">{{ account.identity.web }}</a></td>
                     </tr>
+                    <tr v-if="account.identity.twitter">
+                      <td>Identity::twitter</td>
+                      <td class="text-right"><a :href="`https://twitter.com/${account.identity.twitter.substr(1, account.identity.twitter.length)}`" target="_blank">{{ account.identity.twitter }}</a></td>
+                    </tr>
                     <tr v-if="account.identity.judgements">
                       <td>Identity::judgements</td>
                       <td class="text-right">
