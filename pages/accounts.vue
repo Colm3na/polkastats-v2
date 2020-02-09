@@ -16,7 +16,7 @@
               v-model="filter"
               type="search"
               id="filterInput"
-              placeholder="Search account by address, index, nickname or identity"
+              placeholder="Search account by address, index or identity"
             ></b-form-input>
           </b-col>
         </b-row>
@@ -75,9 +75,6 @@
                 <nuxt-link :to="{name: 'account', query: { accountId: data.item.accountId } }" title="Account details">
                   <h4>{{ data.item.accountIndex }}</h4>
                 </nuxt-link>
-                <p class="mb-0" v-if="data.item.nickname">
-                  {{ data.item.nickname }}
-                </p>
                 <p class="mb-0" v-if="data.item.identity.display">
                   {{ data.item.identity.display }}
                 </p>
@@ -104,9 +101,6 @@
                   {{ data.item.accountIndex }}
                 </nuxt-link>
               </div>
-            </template>
-            <template slot="nickname" slot-scope="data">
-              {{ data.item.nickname }}
             </template>
             <template slot="identity" slot-scope="data">
               {{ data.item.identity.display }}
@@ -167,7 +161,6 @@ export default {
       fields: [
         { key: 'rank', label: 'Rank', sortable: true, class: `d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell` },
         { key: 'accountId', label: 'Account', sortable: true },
-        { key: 'nickname', label: 'Nickname', sortable: true, class: `d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell` },
         { key: 'identity', label: 'Identity', sortable: true, class: `d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell` },
         { key: 'freeBalance', label: 'Free balance', sortable: true, class: `d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell` },
         { key: 'lockedBalance', label: 'Locked balance', sortable: true, class: `d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell` },
