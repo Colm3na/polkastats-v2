@@ -120,6 +120,14 @@
                 {{ formatAmount(data.item.availableBalance) }}
               </p>
             </template>
+            <template slot="favorite" slot-scope="data">
+              <p class="text-center mb-0">
+                <a class="favorite" v-on:click="toggleFavorite(data.item.accountIndex)">
+                  <i v-if="data.item.favorite" class="fas fa-star" style="color: #f1bd23" v-b-tooltip.hover title="Remove from Favorites"></i>
+                  <i v-else class="fas fa-star" style="color: #e6dfdf;" v-b-tooltip.hover title="Add to Favorites"></i>
+                </a>
+              </p>
+            </template>
           </b-table>
           <b-pagination
             v-model="currentPage"
@@ -164,14 +172,27 @@ export default {
         { key: 'identity', label: 'Identity', sortable: true, class: `d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell` },
         { key: 'freeBalance', label: 'Free balance', sortable: true, class: `d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell` },
         { key: 'lockedBalance', label: 'Locked balance', sortable: true, class: `d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell` },
-        { key: 'availableBalance', label: 'Available balance', sortable: true, class: `d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell` }
+        { key: 'availableBalance', label: 'Available balance', sortable: true, class: `d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell` },
+        { key: 'favorite', label: '⭐', sortable: true, class: `d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell` }
       ],
+      favorites: [],
       polling: null
     }
   },
   computed: {
     accounts() {
-      return this.$store.state.accounts.list;
+      let accounts = [];
+      for(let i = 0; i < this.$store.state.accounts.list.length; i++) {
+        let account = this.$store.state.accounts.list[i];
+        const accountIndex = account.accountIndex
+          
+        accounts.push({
+          ...account,
+          accountIndex,
+          favorite: this.isFavorite(accountIndex)
+        });
+      }
+      return accounts;
     },
     sortOptions() {
       // Create an options list from our fields
@@ -185,6 +206,11 @@ export default {
   created: function () {
     var vm = this;
     
+    // Get favorites from cookie
+    if (this.$cookies.get('favorites')) {
+      this.favorites = this.$cookies.get('favorites');
+    }
+
     // Force update of account list if empty
     if (this.$store.state.accounts.list.length == 0) {
       vm.$store.dispatch('accounts/update');
@@ -202,10 +228,45 @@ export default {
     clearInterval(this.polling);
   },
   methods: {
+     toggleFavorite(validator) {
+      // Receives validator accountId
+      if (this.isFavorite(validator)) {
+        this.favorites.splice(this.getIndex(validator), 1);
+      } else {
+        this.favorites.push({ accountId: validator, name: 'Edit phragmen name...'});
+      }
+      return true;
+    },
+    isFavorite(validator) {
+      // Receives validator accountId
+      for (var i=0; i < this.favorites.length; i++) {
+        if (this.favorites[i].accountId == validator) {
+          return true;
+        }
+      }
+      return false;
+    },
+    getIndex(validator) {
+      // Receives validator accountId
+      for (var i=0; i < this.favorites.length; i++) {
+        if (this.favorites[i].accountId == validator) {
+          return i;
+        }
+      }
+      return false;
+    },
     onFiltered(filteredItems) {
       // Trigger pagination to update the number of buttons/pages due to filtering
       this.totalRows = filteredItems.length
       this.currentPage = 1
+    }
+  },
+  watch: {
+    favorites: function (val) {
+      this.$cookies.set('favorites', val, {
+        path: '/',
+        maxAge: 60 * 60 * 24 * 7
+      });
     }
   },
   components: {

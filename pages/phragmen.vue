@@ -148,6 +148,14 @@
                 {{ formatAmount(data.item.stake_total) }}
               </p>
             </template>
+            <template slot="favorite" slot-scope="data">
+              <p class="text-center mb-0">
+                <a class="favorite" v-on:click="toggleFavorite(data.item.accountIndex)">
+                  <i v-if="data.item.favorite" class="fas fa-star" style="color: #f1bd23" v-b-tooltip.hover title="Remove from Favorites"></i>
+                  <i v-else class="fas fa-star" style="color: #e6dfdf;" v-b-tooltip.hover title="Add to Favorites"></i>
+                </a>
+              </p>
+            </template>
           </b-table>
           <b-pagination
             v-model="currentPage"
@@ -196,10 +204,12 @@ export default {
         { key: 'other_stake_count', label: 'Voters', sortable: true, class: `d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell` },
         { key: 'stake_validator', label: 'Self stake', sortable: true, class: `d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell` },
         { key: 'other_stake_sum', label: 'Voters stake', sortable: true, class: `d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell` },
-        { key: 'stake_total', label: 'Total stake', sortable: true, class: `d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell` }
+        { key: 'stake_total', label: 'Total stake', sortable: true, class: `d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell` },
+        { key: 'favorite', label: '⭐', sortable: true, class: `d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell` }
       ],
       blockExplorer,
-      polling: null
+      polling: null,
+      favorites: [],
     }
   },
   computed: {
@@ -211,6 +221,7 @@ export default {
       for(let i = 0; i < this.$store.state.phragmen.info.candidates.length; i++) {
         let candidate = this.$store.state.phragmen.info.candidates[i];
         let identity = "";
+        const accountIndex = this.indexes[candidate.pub_key_stash];
         if (this.hasIdentity(candidate.pub_key_stash)) {
           identity = this.getIdentity(candidate.pub_key_stash);
         }
@@ -222,7 +233,8 @@ export default {
           ...candidate,
           identity,
           kusamaIdentity,
-          accountIndex: this.indexes[candidate.pub_key_stash]
+          accountIndex,
+          favorite: this.isFavorite(accountIndex)
         });
       }
       return candidates;
@@ -253,6 +265,11 @@ export default {
   },
   created: function () {
     var vm = this;
+
+    // Get favorites from cookie
+    if (this.$cookies.get('favorites')) {
+      this.favorites = this.$cookies.get('favorites');
+    }
 
     // Force update of network info
     vm.$store.dispatch('network/update');
@@ -298,6 +315,24 @@ export default {
     clearInterval(this.pollingIndexes);
   },
   methods: {
+    toggleFavorite(validator) {
+      // Receives validator accountId
+      if (this.isFavorite(validator)) {
+        this.favorites.splice(this.getIndex(validator), 1);
+      } else {
+        this.favorites.push({ accountId: validator, name: 'Edit phragmen name...'});
+      }
+      return true;
+    },
+    isFavorite(validator) {
+      // Receives validator accountId
+      for (var i=0; i < this.favorites.length; i++) {
+        if (this.favorites[i].accountId == validator) {
+          return true;
+        }
+      }
+      return false;
+    },
     getIndex(validator) {
       // Receives validator accountId
       for (var i=0; i < this.favorites.length; i++) {
