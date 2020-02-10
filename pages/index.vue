@@ -83,28 +83,28 @@
               </p>
             </template>
             <template slot="accountId" slot-scope="data">
-              <div class="d-block d-sm-block d-md-none d-lg-none d-xl-none text-center">
+              <div class="d-block d-sm-block d-md-none d-lg-none d-xl-none">
                 <a class="favorite" v-on:click="toggleFavorite(data.item.accountId)">
                   <i v-if="data.item.favorite" class="fas fa-star" style="color: #f1bd23" v-b-tooltip.hover title="Remove from Favorites"></i>
                   <i v-else class="fas fa-star" style="color: #e6dfdf;" v-b-tooltip.hover title="Add to Favorites"></i>
                 </a>
-                <div v-if="hasIdentity(data.item.accountId)">
+                <div v-if="hasIdentity(data.item.accountId)" class="logo">
                   <div v-if="getIdentity(data.item.accountId).logo !== ''">
                     <img v-bind:src="getIdentity(data.item.accountId).logo" class="identity mt-2" />
                   </div>
                 </div>
-                <div v-else>
+                <div v-else class="logo">
                   <Identicon :value="data.item.accountId" :size="80" :theme="'polkadot'" :key="data.item.accountId" />
                 </div>
                 <nuxt-link :to="{name: 'validator', query: { accountId: data.item.accountId } }" title="Validator details">
-                  <h4 v-if="hasIdentity(data.item.accountId)" class="mt-2 mb-2">
+                  <h4 v-if="hasIdentity(data.item.accountId)" class="fullname2 mt-2 mb-2">
                     {{ getIdentity(data.item.accountId).full_name }}
                   </h4>
-                  <h4 v-else-if="hasKusamaIdentity(data.item.accountId)" class="mt-2 mb-2">
+                  <h4 v-else-if="hasKusamaIdentity(data.item.accountId)" class="fullname mt-2 mb-2">
                     {{ hasKusamaIdentity(data.item.accountId).display }}
                   </h4>
                   <h4 v-else class="mt-2 mb-2">
-                    <span class="d-inline d-sm-inline d-md-inline d-lg-inline d-xl-none">{{ indexes[data.item.accountId] }}</span>
+                    <span class="validator-name d-inline d-sm-inline d-md-inline d-lg-inline d-xl-none">{{ indexes[data.item.accountId] }}</span>
                     <span class="d-none d-sm-none d-md-none d-lg-none d-xl-inline">{{ indexes[data.item.accountId] }}</span>
                   </h4>
                 </nuxt-link>
@@ -122,6 +122,7 @@
                       <span v-b-tooltip.hover title="Self bonded" v-if="data.item.stakers.own > 0">{{ formatAmount(data.item.stakers.own) }}</span>
                       <span v-b-tooltip.hover title="Bonded by nominators" v-if="(data.item.stakers.total - data.item.stakers.own) > 0">(+{{ formatAmount(data.item.stakers.total - data.item.stakers.own) }})</span>
                     </small>
+                     AQUI<b-icon-alert-triangle-fill></b-icon-alert-triangle-fill>
                   </p>
                   <p class="mb-0" v-if="data.item.stakers.total" v-b-tooltip.hover title="Percentage over total bonded stake">{{ getStakePercent(data.item.stakers.total, totalStakeBonded) }}% of total stake</p>
                 </div>
@@ -526,7 +527,7 @@ body {
   margin-left: 0.1rem;
 }
 .identity {
-  max-width: 80px;
+  max-width: 120px;
 }
 .identity-small {
   max-width: 25px;
@@ -602,6 +603,12 @@ body {
     font-size: 1.1rem;
     color: red;
   }
+  #validators-table .validator-name {
+    top: -1em;
+    left: 50%;
+    position: relative;
+    font-size: 1.7em;
+  }
   #validators-table .imOnline {
     position: absolute;
     top: 0rem;
@@ -611,6 +618,32 @@ body {
     position: absolute;
     top: 0rem;
     left: 0rem;
+  }
+  .bonded {
+    color: #d75ea1;
+    font-weight: 700;
+    font-size: 1.3rem;
+    position: relative;
+    top: -3.5em;
+    left: 60%;
+  }
+  #validators-table .logo {
+    position: relative;
+    top: 3em;
+    left: 10%;
+  }
+  #validators-table .fullname  {
+    font-size: 3em;
+    position: relative;
+    left: 50%;
+    top: -2em;
+  }
+
+    #validators-table .fullname2  {
+    font-size: 3em;
+    position: relative;
+    left: 50%;
+    top: -1.5em;
   }
 }
 
