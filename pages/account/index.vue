@@ -2,12 +2,6 @@
   <div>
     <section>
       <b-container class="account-page main pt-4 pb-5">
-        
-        <!-- Info message -->
-        <b-alert show dismissible variant="success" class="text-center mb-4">
-          Data is updated every 5 minutes
-        </b-alert>
-
         <template v-for="(account, index) in accounts">
           <template v-if="account.accountId === accountId">
             <div class="row">

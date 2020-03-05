@@ -3,18 +3,6 @@
     <section>
       <b-container class="page-phragmen main pt-4">
         <h1 class="text-center mb-4">Predicted candidates by phragmen election algorithm</h1>
-        <!-- Phragmen alert I -->
-        <b-alert show dismissible variant="primary" class="text-center">
-          <p class="mt-3">We get validador slots and minimum validator count from the local kusama node using @polkadot/api and then run offline-phragmen with that params every 1 minute. Output is stored in a MySQL database and served by PolkaStats backend (<a href="https://polkastats.io:8443/phragmen" target="_blank">see raw json</a>).</p>
-          <p>
-            We use a modified version of offline-phragmen by <a href="https://github.com/kianenigma" target="_blank">kianenigma</a> (<a href="https://github.com/kianenigma/offline-phragmen" target="_blank">https://github.com/kianenigma/offline-phragmen</a>).
-            The modification was just change the output to json, taking most of the code from <a href="https://github.com/soc1c/offline-phragmen" target="_blank">https://github.com/soc1c/offline-phragmen</a> by <a href="https://github.com/soc1c" target="_blank">soc1c</a>.
-            Modified source is available here: <a href="https://github.com/mariopino/offline-phragmen" target="_blank">https://github.com/mariopino/offline-phragmen</a></p>     
-        </b-alert>
-        <!-- Phragmen alert II -->
-        <b-alert show dismissible variant="warning" class="text-center">
-          Calculated over {{ validator_count }} validator candidates, {{ nominator_count }} nominators and total issuance of {{ formatAmount(total_issuance) }}     
-        </b-alert>
         <!-- Filter -->
         <b-row>
           <b-col lg="12" class="mb-4">
@@ -148,6 +136,14 @@
                 {{ formatAmount(data.item.stake_total) }}
               </p>
             </template>
+            <template slot="favorite" slot-scope="data">
+              <p class="text-center mb-0">
+                <a class="favorite" v-on:click="toggleFavorite(data.item.accountIndex)">
+                  <i v-if="data.item.favorite" class="fas fa-star" style="color: #f1bd23" v-b-tooltip.hover title="Remove from Favorites"></i>
+                  <i v-else class="fas fa-star" style="color: #e6dfdf;" v-b-tooltip.hover title="Add to Favorites"></i>
+                </a>
+              </p>
+            </template>
           </b-table>
           <b-pagination
             v-model="currentPage"
@@ -196,10 +192,12 @@ export default {
         { key: 'other_stake_count', label: 'Voters', sortable: true, class: `d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell` },
         { key: 'stake_validator', label: 'Self stake', sortable: true, class: `d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell` },
         { key: 'other_stake_sum', label: 'Voters stake', sortable: true, class: `d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell` },
-        { key: 'stake_total', label: 'Total stake', sortable: true, class: `d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell` }
+        { key: 'stake_total', label: 'Total stake', sortable: true, class: `d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell` },
+        { key: 'favorite', label: '⭐', sortable: true, class: `d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell` }
       ],
       blockExplorer,
-      polling: null
+      polling: null,
+      favorites: [],
     }
   },
   computed: {
@@ -211,6 +209,7 @@ export default {
       for(let i = 0; i < this.$store.state.phragmen.info.candidates.length; i++) {
         let candidate = this.$store.state.phragmen.info.candidates[i];
         let identity = "";
+        const accountIndex = this.indexes[candidate.pub_key_stash];
         if (this.hasIdentity(candidate.pub_key_stash)) {
           identity = this.getIdentity(candidate.pub_key_stash);
         }
@@ -222,7 +221,8 @@ export default {
           ...candidate,
           identity,
           kusamaIdentity,
-          accountIndex: this.indexes[candidate.pub_key_stash]
+          accountIndex,
+          favorite: this.isFavorite(accountIndex)
         });
       }
       return candidates;
@@ -253,6 +253,11 @@ export default {
   },
   created: function () {
     var vm = this;
+
+    // Get favorites from cookie
+    if (this.$cookies.get('favorites')) {
+      this.favorites = this.$cookies.get('favorites');
+    }
 
     // Force update of network info
     vm.$store.dispatch('network/update');
@@ -298,6 +303,24 @@ export default {
     clearInterval(this.pollingIndexes);
   },
   methods: {
+    toggleFavorite(validator) {
+      // Receives validator accountId
+      if (this.isFavorite(validator)) {
+        this.favorites.splice(this.getIndex(validator), 1);
+      } else {
+        this.favorites.push({ accountId: validator, name: 'Edit phragmen name...'});
+      }
+      return true;
+    },
+    isFavorite(validator) {
+      // Receives validator accountId
+      for (var i=0; i < this.favorites.length; i++) {
+        if (this.favorites[i].accountId == validator) {
+          return true;
+        }
+      }
+      return false;
+    },
     getIndex(validator) {
       // Receives validator accountId
       for (var i=0; i < this.favorites.length; i++) {
@@ -357,8 +380,6 @@ body {
 }
 .page-phragmen .favorite {
   position: absolute;
-  top: 0.2rem;
-  right: 0.2rem;
   z-index: 10;
   font-size: 1.1rem;
 }

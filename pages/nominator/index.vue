@@ -22,7 +22,7 @@
                   </nuxt-link>  
                 </template>
               </div>
-            </div>
+            </div>           
             <div class="card mt-4 mb-3">
               <div class="card-body text-center">
                 <Identicon :value="nominator.accountId" :size="80" :theme="'polkadot'" :key="nominator.accountId" />
@@ -31,7 +31,67 @@
                 </a>
                 <p class="amount" v-b-tooltip.hover title="Total bonded">{{ formatDot(getTotalStake(nominator.staking)) }}</p>
                 <h5>{{ nominator.staking.length }} nomination<span v-if="nominator.staking.length > 1">s</span>:</h5>
-                <hr>
+                <hr>          
+                <!-- identity start -->
+                    <div v-if="hasIdentity(nominator.accountId)">
+                      <div class="row" v-if="getIdentity(nominator.accountId).identity.hasOwnProperty('display')">
+                        <div class="col-md-3 mb-1">
+                          <strong>Name</strong>
+                        </div>
+                        <div class="col-md-9 mb-1 fee">
+                          {{ getIdentity(nominator.accountId).identity.display }}
+                        </div>
+                      </div>
+                      <div class="row" v-if="getIdentity(nominator.accountId).identity.hasOwnProperty('email')">
+                        <div class="col-md-3 mb-2">
+                          <strong>Email</strong>
+                        </div>
+                        <div class="col-md-9 mb-2 fee">
+                           <a :href="`mailto:${getIdentity(nominator.accountId).identity.email}`" target="_blank">
+                            {{ getIdentity(nominator.accountId).identity.email }}
+                          </a>
+                        </div>
+                      </div>
+                      <div class="row" v-if="getIdentity(nominator.accountId).identity.hasOwnProperty('legal')">
+                        <div class="col-md-3 mb-2">
+                          <strong>Legal</strong>
+                        </div>
+                        <div class="col-md-9 mb-2 fee">
+                          {{ getIdentity(nominator.accountId).identity.legal }}
+                        </div>
+                      </div>
+                      <div class="row" v-if="getIdentity(nominator.accountId).identity.hasOwnProperty('riot')">
+                        <div class="col-md-3 mb-2">
+                          <strong>Riot</strong>
+                        </div>
+                        <div class="col-md-9 mb-2 fee">
+                           <a :href="`https://riot.im/app/#/user/${getIdentity(nominator.accountId).identity.riot}`" target="_blank">
+                            {{ getIdentity(nominator.accountId).identity.riot }}
+                          </a>
+                        </div>
+                      </div>
+                      <div class="row" v-if="getIdentity(nominator.accountId).identity.hasOwnProperty('twitter')">
+                        <div class="col-md-3 mb-2">
+                          <strong>Twitter</strong>
+                        </div>
+                        <div class="col-md-9 mb-2 fee">
+                          <a :href="`https://twitter.com/${getIdentity(nominator.accountId).identity.twitter}`" target="_blank">
+                            {{ getIdentity(nominator.accountId).identity.twitter }}
+                          </a>
+                        </div>
+                      </div>
+                      <div class="row" v-if="getIdentity(nominator.accountId).identity.hasOwnProperty('web')">
+                        <div class="col-md-3 mb-2">
+                          <strong>Web</strong>
+                        </div>
+                        <div class="col-md-9 mb-2 fee">
+                          <a v-bind:href="getIdentity(nominator.accountId).identity.web" target="_blank">
+                            {{ getIdentity(nominator.accountId).identity.web }}
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- identity end -->
                 <div class="row">
                   <div class="col-6 col-md-4 col-lg-3 col-xl-2" v-for="nomination in nominator.staking" :key="nomination.validator">
                     <Identicon :value="nomination.validator" :size="40" :theme="'polkadot'" :key="nomination.validator" />
@@ -100,7 +160,7 @@ export default {
     nominators () {
       let nominatorStaking = [];
       for(let i = 0; i < this.validators.length; i++) {
-        let validator = this.validators[i];
+        let validator = this.validators[i];     
         if (validator.stakers.others.length > 0) {
           for (let j = 0; j < validator.stakers.others.length; j++) {
             let nominator = validator.stakers.others[j];
@@ -163,6 +223,11 @@ export default {
       vm.$store.dispatch('validators/update');
     }
 
+    // Force update of staking_identity list if empty
+    if (this.$store.state.stakingIdentities.list.length == 0) {
+      vm.$store.dispatch('stakingIdentities/update');
+    }
+
     // Force update of indentities list if empty
     if (this.$store.state.identities.list.length === 0) {
       vm.$store.dispatch('identities/update');
@@ -183,6 +248,7 @@ export default {
       vm.$store.dispatch('validators/update');
       vm.$store.dispatch('identities/update');
       vm.$store.dispatch('nicknames/update');
+      vm.$store.dispatch('stakingIdentities/update');
     }, 10000);
 
     // Update account indexes every 1 min
@@ -243,12 +309,23 @@ export default {
         solid: solid
       })
     },
+    getIdentity(stashId) {
+      let filteredArray =  this.$store.state.stakingIdentities.list.filter(obj => {
+        return obj.accountId === stashId
+      });
+      return filteredArray[0];
+    },
     hasIdentity(stashId) {
+      return this.$store.state.stakingIdentities.list.some(obj => {
+        return obj.accountId === stashId;
+      });
+    },
+    hasPolkaStatsIdentity(stashId) {
       return this.$store.state.identities.list.some(obj => {
         return obj.stashId === stashId;
       });
     },
-    getIdentity(stashId) {
+    getPolkaStatsIdentity(stashId) {
       let filteredArray =  this.$store.state.identities.list.filter(obj => {
         return obj.stashId === stashId
       });

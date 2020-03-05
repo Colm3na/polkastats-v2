@@ -11,6 +11,10 @@
     "generate": "nuxt generate"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.27",
+    "@fortawesome/free-brands-svg-icons": "^5.12.1",
+    "@fortawesome/free-solid-svg-icons": "^5.12.1",
+    "@fortawesome/vue-fontawesome": "^0.1.9",
     "@nuxtjs/axios": "^5.3.6",
     "@nuxtjs/google-analytics": "^2.2.0",
     "@polkadot/util": "^0.94.1",
@@ -24,7 +28,7 @@
     "jdenticon": "^2.2.0",
     "jquery": "^3.4.1",
     "moment": "^2.24.0",
-    "nuxt": "^2.0.0",
+    "nuxt": "^2.11.0",
     "nuxt-clipboard2": "^0.2.1",
     "vue-apexcharts": "^1.4.0"
   },

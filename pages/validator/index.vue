@@ -33,10 +33,10 @@
                 <i v-else class="favorite fas fa-star" style="color: #e6dfdf;" v-b-tooltip.hover title="Not in Favorites"></i>
                 <div class="row">
                   <div class="col-md-3 mb-2 text-center">
-                    <div v-if="hasIdentity(validator.stashId)">
-                      <div v-if="getIdentity(validator.accountId).logo">
-                        <img v-bind:src="getIdentity(validator.accountId).logo" class="img-fluid" style="max-width: 150px;" />
-                        <h3 class="mt-2 mb-2" v-if="getIdentity(validator.accountId).full_name">{{ getIdentity(validator.accountId).full_name }}</h3>
+                    <div v-if="hasPolkaStatsIdentity(validator.stashId)">
+                      <div v-if="getPolkaStatsIdentity(validator.accountId).logo">
+                        <img v-bind:src="getPolkaStatsIdentity(validator.accountId).logo" class="img-fluid" style="max-width: 150px;" />
+                        <h3 class="mt-2 mb-2" v-if="getPolkaStatsIdentity(validator.accountId).full_name">{{ getPolkaStatsIdentity(validator.accountId).full_name }}</h3>
                       </div>
                       <div v-else>
                         <Identicon :value="validator.accountId" :size="80" :theme="'polkadot'" :key="validator.accountId" />
@@ -135,64 +135,66 @@
                         {{ formatRewardDest(validator.rewardDestination) }}
                       </div>
                     </div>
-                    <!-- Identity -->
-                    <div v-if="hasIdentity(validator.accountId)" class="mb-2">
-                      <div class="row" v-if="getIdentity(validator.accountId).full_name !== `` && getIdentity(validator.accountId).full_name !== `null`">
-                        <div class="col-md-3 mb-2">
+                     <!-- identity start -->
+                    <div v-if="hasIdentity(validator.accountId)">
+                      <div class="row" v-if="getIdentity(validator.accountId).identity.hasOwnProperty('display')">
+                        <div class="col-md-3 mb-1">
                           <strong>Name</strong>
                         </div>
-                        <div class="col-md-9 mb-2 fee">
-                          {{ getIdentity(validator.accountId).full_name }}
+                        <div class="col-md-9 mb-1 fee">
+                          {{ getIdentity(validator.accountId).identity.display }}
                         </div>
                       </div>
-                      <div class="row" v-if="getIdentity(validator.accountId).bio !== `` && getIdentity(validator.accountId).bio !== `null`">
+                      <div class="row" v-if="getIdentity(validator.accountId).identity.hasOwnProperty('email')">
                         <div class="col-md-3 mb-2">
-                          <strong>Bio</strong>
+                          <strong>Email</strong>
                         </div>
                         <div class="col-md-9 mb-2 fee">
-                          {{ getIdentity(validator.accountId).bio }}
-                        </div>
-                      </div>
-                      <div class="row" v-if="getIdentity(validator.accountId).location !== `` && getIdentity(validator.accountId).location !== `null`">
-                        <div class="col-md-3 mb-2">
-                          <strong>Location</strong>
-                        </div>
-                        <div class="col-md-9 mb-2 fee">
-                          {{ getIdentity(validator.accountId).location }}
-                        </div>
-                      </div>
-                      <div class="row" v-if="getIdentity(validator.accountId).website !== `` && getIdentity(validator.accountId).website !== `null`">
-                        <div class="col-md-3 mb-2">
-                          <strong>Website</strong>
-                        </div>
-                        <div class="col-md-9 mb-2 fee">
-                          <a v-bind:href="getIdentity(validator.accountId).website" target="_blank">
-                            {{ getIdentity(validator.accountId).website }}
+                          <a :href="`mailto:${getIdentity(validator.accountId).identity.email}`" target="_blank">
+                            {{ getIdentity(validator.accountId).identity.email }}
                           </a>
                         </div>
                       </div>
-                      <div class="row" v-if="getIdentity(validator.accountId).twitter !== `` && getIdentity(validator.accountId).twitter  !== `null`">
+                      <div class="row" v-if="getIdentity(validator.accountId).identity.hasOwnProperty('legal')">
+                        <div class="col-md-3 mb-2">
+                          <strong>Legal</strong>
+                        </div>
+                        <div class="col-md-9 mb-2 fee">
+                          {{ getIdentity(validator.accountId).identity.legal }}
+                        </div>
+                      </div>
+                      <div class="row" v-if="getIdentity(validator.accountId).identity.hasOwnProperty('riot')">
+                        <div class="col-md-3 mb-2">
+                          <strong>Riot</strong>
+                        </div>
+                        <div class="col-md-9 mb-2 fee">
+                          <a :href="`https://riot.im/app/#/user/${getIdentity(validator.accountId).identity.riot}`" target="_blank">
+                            {{ getIdentity(validator.accountId).identity.riot }}
+                          </a>
+                        </div>
+                      </div>
+                      <div class="row" v-if="getIdentity(validator.accountId).identity.hasOwnProperty('twitter')">
                         <div class="col-md-3 mb-2">
                           <strong>Twitter</strong>
                         </div>
                         <div class="col-md-9 mb-2 fee">
-                          <a v-bind:href="getIdentity(validator.accountId).twitter" target="_blank">
-                            {{ getIdentity(validator.accountId).twitter }}
+                          <a :href="`https://twitter.com/${getIdentity(validator.accountId).identity.twitter}`" target="_blank">
+                            {{ getIdentity(validator.accountId).identity.twitter }}
                           </a>
                         </div>
                       </div>
-                      <div class="row" v-if="getIdentity(validator.accountId).github !== `` && getIdentity(validator.accountId).github  !== `null`">
+                      <div class="row" v-if="getIdentity(validator.accountId).identity.hasOwnProperty('web')">
                         <div class="col-md-3 mb-2">
-                          <strong>Github</strong>
+                          <strong>Web</strong>
                         </div>
                         <div class="col-md-9 mb-2 fee">
-                          <a v-bind:href="getIdentity(validator.accountId).github" target="_blank">
-                            {{ getIdentity(validator.accountId).github }}
+                          <a v-bind:href="getIdentity(validator.accountId).identity.web" target="_blank">
+                            {{ getIdentity(validator.accountId).identity.web }}
                           </a>
                         </div>
                       </div>
                     </div>
-                    <!-- Identity End -->
+                    <!-- identity end -->
 
                     <!-- Stakers -->
                     <b-tabs content-class="mt-4 mb-2" class="mt-4">
@@ -696,6 +698,11 @@ export default {
       vm.$store.dispatch('validators/update');
     }
 
+    // Force update of staking_identity list if empty
+    if (this.$store.state.stakingIdentities.list.length == 0) {
+      vm.$store.dispatch('stakingIdentities/update');
+    }
+
     // Force update of indentity list if empty
     if (this.$store.state.identities.list.length == 0) {
       vm.$store.dispatch('identities/update');
@@ -714,6 +721,7 @@ export default {
     // Update validators every 10 seconds
     this.polling = setInterval(() => {
       vm.$store.dispatch('validators/update');
+      vm.$store.dispatch('stakingIdentities/update');
     }, 10000);
     
     // Refresh graph data and account indexes every minute
@@ -938,12 +946,23 @@ export default {
       }
       return false;
     },
+    getIdentity(stashId) {
+      let filteredArray =  this.$store.state.stakingIdentities.list.filter(obj => {
+        return obj.accountId === stashId
+      });
+      return filteredArray[0];
+    },
     hasIdentity(stashId) {
+      return this.$store.state.stakingIdentities.list.some(obj => {
+        return obj.accountId === stashId;
+      });
+    },
+    hasPolkaStatsIdentity(stashId) {
       return this.$store.state.identities.list.some(obj => {
         return obj.stashId === stashId;
       });
     },
-    getIdentity(stashId) {
+    getPolkaStatsIdentity(stashId) {
       let filteredArray =  this.$store.state.identities.list.filter(obj => {
         return obj.stashId === stashId
       });

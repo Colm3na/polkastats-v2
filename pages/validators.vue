@@ -2,42 +2,6 @@
   <div>
     <section>
       <b-container id="page-index" class="main pt-4">
-        <!-- Kusama CC3 message -->
-        <b-alert show dismissible variant="primary" class="text-center">
-          <strong
-            >⚡ We have a new awesome dedicated server graciously sponsored by
-            <a href="https://www.colmenalabs.org/" target="_blank"
-              >La Colmena Labs</a
-            >. Thanks! ⚡</strong
-          >
-        </b-alert>
-        <!-- Economics info message -->
-        <b-alert show dismissible variant="success" class="text-center">
-          Total issuance is
-          <strong>{{ formatAmount(network.totalIssuance) }}</strong>
-          <span
-            v-if="
-              totalStakeBonded.toString() !== `0` &&
-                totalStakeBondedPercen !== 0
-            "
-          >
-            , total stake bonded is
-            <strong
-              >{{ formatAmount(totalStakeBonded) }} ({{
-                totalStakeBondedPercen.toString(10)
-              }}% of total)</strong
-            >
-          </span>
-        </b-alert>
-        <!-- Validators info message -->
-        <b-alert show dismissible variant="success" class="text-center">
-          Currently there are <strong>{{ validators.length }}</strong> active
-          validators of
-          <strong>{{ network.session.validatorCount }}</strong> available slots
-          and <strong>{{ intentions.length }}</strong> waiting
-        </b-alert>
-        <!-- Network component -->
-        <Network :network="network" />
         <!-- Filter -->
         <b-row>
           <b-col lg="12" class="mb-4">
@@ -49,6 +13,17 @@
             ></b-form-input>
           </b-col>
         </b-row>
+        <b-dropdown
+          id="dropdown"
+          variant="outline"
+          text="Show Nº Items"
+          class="dropdow"
+        >
+          <b-dropdown-item @click="handleNumFields(10)">10</b-dropdown-item>
+          <b-dropdown-item @click="handleNumFields(20)">20</b-dropdown-item>
+          <b-dropdown-item @click="handleNumFields(50)">50</b-dropdown-item>
+        </b-dropdown>
+
         <!-- Mobile sorting -->
         <div class="row d-block d-sm-block d-md-block d-lg-none d-xl-none">
           <b-col lg="6" class="my-1">
@@ -123,85 +98,84 @@
             </template>
             <template slot="accountId" slot-scope="data">
               <div class="d-block d-sm-block d-md-none d-lg-none d-xl-none">
-                
                 <b-container>
                   <b-row>
-                  <p class="mt-3 mb-0 rank">
-                  <span class="rank-detail" v-b-tooltip.hover title="Rank"
-                    >#{{ data.item.rank }}</span
-                  >
-                  <i
-                    v-if="data.item.imOnline"
-                    class="imOnline fas fa-check-circle ml-1"
-                    v-b-tooltip.hover
-                    v-bind:title="data.item.imOnlineMessage"
-                  ></i>
-                  <i
-                    v-else
-                    class="imOffline fas fa-times-circle ml-1"
-                    v-b-tooltip.hover
-                    v-bind:title="data.item.imOnlineMessage"
-                  ></i>
-                  <i
-                    v-if="data.item.currentElected"
-                    class="elected fas fa-chevron-circle-right"
-                    v-b-tooltip.hover
-                    title="Elected for next session"
-                  ></i>
-                  <i
-                    v-else
-                    class="notElected fas fa-times-circle"
-                    v-b-tooltip.hover
-                    title="Not elected for next session"
-                  ></i>
-                </p>
-                <a
-                  class="favorite"
-                  v-on:click="toggleFavorite(data.item.accountId)"
-                >
-                  <i
-                    v-if="data.item.favorite"
-                    class="fas fa-star"
-                    style="color: #f1bd23"
-                    v-b-tooltip.hover
-                    title="Remove from Favorites"
-                  ></i>
-                  <i
-                    v-else
-                    class="fas fa-star"
-                    style="color: #e6dfdf;"
-                    v-b-tooltip.hover
-                    title="Add to Favorites"
-                  ></i>
-                </a>
+                    <p class="mt-3 mb-0 rank">
+                      <span class="rank-detail" v-b-tooltip.hover title="Rank"
+                        >#{{ data.item.rank }}</span
+                      >
+                      <i
+                        v-if="data.item.imOnline"
+                        class="imOnline fas fa-check-circle ml-1"
+                        v-b-tooltip.hover
+                        v-bind:title="data.item.imOnlineMessage"
+                      ></i>
+                      <i
+                        v-else
+                        class="imOffline fas fa-times-circle ml-1"
+                        v-b-tooltip.hover
+                        v-bind:title="data.item.imOnlineMessage"
+                      ></i>
+                      <i
+                        v-if="data.item.currentElected"
+                        class="elected fas fa-chevron-circle-right"
+                        v-b-tooltip.hover
+                        title="Elected for next session"
+                      ></i>
+                      <i
+                        v-else
+                        class="notElected fas fa-times-circle"
+                        v-b-tooltip.hover
+                        title="Not elected for next session"
+                      ></i>
+                    </p>
+                    <a
+                      class="favorite"
+                      v-on:click="toggleFavorite(data.item.accountId)"
+                    >
+                      <i
+                        v-if="data.item.favorite"
+                        class="fas fa-star"
+                        style="color: #f1bd23"
+                        v-b-tooltip.hover
+                        title="Remove from Favorites"
+                      ></i>
+                      <i
+                        v-else
+                        class="fas fa-star"
+                        style="color: #e6dfdf;"
+                        v-b-tooltip.hover
+                        title="Add to Favorites"
+                      ></i>
+                    </a>
                   </b-row>
                   <b-row>
                     <b-col cols="4">
                       <nuxt-link
-                          :to="{
-                            name: 'validator',
-                            query: { accountId: data.item.accountId }
-                          }"
-                          title="Validator details"
-                        >
-                      <div v-if="hasIdentity(data.item.accountId)">
-                        <div
-                          v-if="getIdentity(data.item.accountId).logo !== ''"
-                        >
-                          <img
-                            v-bind:src="getIdentity(data.item.accountId).logo"
-                            class="identity mt-2"
+                        :to="{
+                          name: 'validator',
+                          query: { accountId: data.item.accountId }
+                        }"
+                        title="Validator details"
+                      >
+                        <div v-if="hasIdentity(data.item.accountId)">
+                          <div
+                            v-if="getIdentity(data.item.accountId).logo !== ''"
+                          >
+                            <img
+                              v-bind:src="getIdentity(data.item.accountId).logo"
+                              class="identity mt-2"
+                            />
+                          </div>
+                        </div>
+                        <div v-else class="logo">
+                          <Identicon
+                            :value="data.item.accountId"
+                            :size="48"
+                            :theme="'polkadot'"
+                            :key="data.item.accountId"
                           />
                         </div>
-                      </div>
-                      <div v-else class="logo">
-                        <Identicon
-                          :value="data.item.accountId"
-                          :size="48"
-                          :theme="'polkadot'"
-                          :key="data.item.accountId"
-                        />
-                      </div>
                       </nuxt-link>
                     </b-col>
                     <b-col cols="8">
@@ -213,9 +187,7 @@
                           }"
                           title="Validator details"
                         >
-                          <h4
-                            v-if="hasIdentity(data.item.accountId)"
-                          >
+                          <h4 v-if="hasIdentity(data.item.accountId)">
                             {{ getIdentity(data.item.accountId).full_name }}
                           </h4>
                           <h4
@@ -290,7 +262,9 @@
                                     }"
                                   />
                                   {{
-                                    (data.item.commission / 10000000).toFixed(2)
+                                    (data.item.commission / 10000000).toFixed(
+                                      2
+                                    )
                                   }}%
                                 </span>
                               </p>
@@ -671,6 +645,9 @@ export default {
     clearInterval(this.pollingIndexes);
   },
   methods: {
+    handleNumFields(num) {
+      this.perPage = num;
+    },
     toggleFavorite(validator) {
       // Receives validator accountId
       if (this.isFavorite(validator)) {
@@ -870,8 +847,14 @@ body {
 .table.b-table > tfoot > tr > th[aria-sort]::before {
   margin-left: -0.5em;
 }
+.dropdown {
+  margin-bottom: 1rem;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+}
 @media (max-width: 767px) {
-  .table th, .table td {
+  .table th,
+  .table td {
     border-top: 0;
     padding: 0;
   }
@@ -979,7 +962,7 @@ body {
   }
 }
 
-@media (max-width: 470px) { 
+@media (max-width: 470px) {
   td {
     border-top: 0;
   }
@@ -1020,6 +1003,5 @@ body {
   .identity {
     max-width: 48px;
   }
-
 }
 </style>

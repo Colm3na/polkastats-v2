@@ -2,15 +2,6 @@
   <div>
     <section>
       <b-container class="page-favorites main pt-4">
-        <!-- Economics info message -->
-        <b-alert show dismissible variant="success" class="text-center">
-          Total issuance is <strong>{{ formatAmount(network.totalIssuance) }}</strong>
-          <span v-if="totalStakeBonded.toString() !== `0` && totalStakeBondedPercen !== 0">
-            , total stake bonded is <strong>{{ formatAmount(totalStakeBonded) }} ({{ totalStakeBondedPercen.toString(10) }}% of total)</strong>
-          </span>
-        </b-alert>
-        <!-- Network component -->
-        <Network :network="network" />
         <!-- Empty favorites message -->
         <div class="alert alert-warning alert-dismissible fade show mt-3 mb-4" role="alert" v-if="favorites.length === 0">
           <strong>Hi there!</strong> You can click in the star icon <i class="fas fa-star"></i> of a validator or intention to track it on this page.

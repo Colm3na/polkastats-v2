@@ -1,4 +1,8 @@
 <template>
+  <index></index>
+</template>
+<!-- This is commented to fix temporally
+<template>
   <div>
     <section>
       <b-container class="page-candidate main pt-3 pb-5">
@@ -27,10 +31,11 @@
               <div class="card-body">
                 <div class="row">
                   <div class="col-md-3 mb-2 text-center">
-                    <div v-if="hasIdentity(candidate.pub_key_stash)">
-                      <div v-if="getIdentity(candidate.pub_key_stash).logo !== ''">
-                        <img v-bind:src="getIdentity(candidate.pub_key_stash).logo" class="identity mt-2" />
-                        <h4 class="mt-2 mb-2" v-if="getIdentity(candidate.pub_key_stash).full_name !== ''">{{ getIdentity(candidate.pub_key_stash).full_name }}</h4>
+
+                    <div v-if="hasPolkStatsIdentity(candidate.pub_key_stash)">
+                      <div v-if="getPolkStatsIdentity(candidate.pub_key_stash).logo !== ''">
+                        <img v-bind:src="getPolkStatsIdentity(candidate.pub_key_stash).logo" class="identity mt-2" />
+                        <h4 class="mt-2 mb-2" v-if="getPolkStatsIdentity(candidate.pub_key_stash).full_name !== ''">{{ getPolkStatsIdentity(candidate.pub_key_stash).full_name }}</h4>
                       </div>
                       <div v-else>
                         <Identicon :value="candidate.pub_key_stash" :size="80" :theme="'polkadot'" :key="candidate.pub_key_stashd" />
@@ -83,6 +88,66 @@
                         </a>
                       </div>
                     </div>
+
+                    <div v-if="hasIdentity(candidate.pub_key_stash)">
+                      <div class="row" v-if="getIdentity(candidate.pub_key_stash).identity.hasOwnProperty('display')">
+                        <div class="col-md-3 mb-1">
+                          <strong>Name</strong>
+                        </div>
+                        <div class="col-md-9 mb-1 fee">
+                          {{ getIdentity(candidate.pub_key_stash).identity.display }}
+                        </div>
+                      </div>
+                      <div class="row" v-if="getIdentity(candidate.pub_key_stash).identity.hasOwnProperty('email')">
+                        <div class="col-md-3 mb-2">
+                          <strong>Email</strong>
+                        </div>
+                        <div class="col-md-9 mb-2 fee">
+                          <a :href="`mailto:${getIdentity(candidate.pub_key_stash).identity.email}`" target="_blank">
+                            {{ getIdentity(candidate.pub_key_stash).identity.email }}
+                          </a>
+                        </div>
+                      </div>
+                      <div class="row" v-if="getIdentity(candidate.pub_key_stash).identity.hasOwnProperty('legal')">
+                        <div class="col-md-3 mb-2">
+                          <strong>Legal</strong>
+                        </div>
+                        <div class="col-md-9 mb-2 fee">
+                          {{ getIdentity(candidate.pub_key_stash).identity.legal }}
+                        </div>
+                      </div>
+                      <div class="row" v-if="getIdentity(candidate.pub_key_stash).identity.hasOwnProperty('riot')">
+                        <div class="col-md-3 mb-2">
+                          <strong>Riot</strong>
+                        </div>
+                        <div class="col-md-9 mb-2 fee"
+                           <a :href="`https://riot.im/app/#/user/${getIdentity(candidate.pub_key_stash).identity.riot}`" target="_blank">
+                            {{ getIdentity(candidate.pub_key_stash).identity.riot }}
+                          </a>
+                        </div>
+                      </div>
+                      <div class="row" v-if="getIdentity(candidate.pub_key_stash).hasOwnProperty('twitter')">
+                        <div class="col-md-3 mb-2">
+                          <strong>Twitter</strong>
+                        </div>
+                        <div class="col-md-9 mb-2 fee">
+                          <a :href="`https://twitter.com/${getIdentity(candidate.pub_key_stash).identity.twitter}`" target="_blank">
+                            {{ getIdentity(candidate.pub_key_stash).identity.twitter }}
+                          </a>
+                        </div>
+                      </div>
+                      <div class="row" v-if="getIdentity(candidate.pub_key_stash).identity.hasOwnProperty('web')">
+                        <div class="col-md-3 mb-2">
+                          <strong>Web</strong>
+                        </div>
+                        <div class="col-md-9 mb-2 fee">
+                          <a v-bind:href="getIdentity(candidate.pub_key_stash).identity.web" target="_blank">
+                            {{ getIdentity(candidate.pub_key_stash).identity.web }}
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+
                     <div class="voters mt-2">
                       <template v-if="candidate.voters">
                         <template v-if="candidate.voters.length > 0">
@@ -114,12 +179,14 @@
                 </div>
               </div>
             </div>
+
           </template>
         </template>
       </b-container>
     </section>
   </div>
 </template>
+-->
 <script>
 import { mapMutations } from 'vuex'
 import axios from 'axios';
@@ -151,7 +218,7 @@ export default {
   },
   computed: {
     candidates () {
-      return this.$store.state.phragmen.info.candidates
+      return this.$store.state.phragmen.info.candidates;
     },
     identities() {
       return this.$store.state.identities.list
@@ -171,6 +238,11 @@ export default {
       vm.$store.dispatch('phragmen/update');
     }
 
+    // Force update of staking_identity list if empty
+    if (this.$store.state.stakingIdentities.list.length == 0) {
+      vm.$store.dispatch('stakingIdentities/update');
+    }
+
     // Force update of indentity list if empty
     if (this.$store.state.identities.list.length == 0) {
       vm.$store.dispatch('identities/update');
@@ -185,12 +257,13 @@ export default {
     if (this.$store.state.indexes.list.length == 0) {
       vm.$store.dispatch('indexes/update');
     }
-    
+    console.log('store', this.$store.state)
     // Update data every 10 seconds
     this.polling = setInterval(() => {
       vm.$store.dispatch('phragmen/update');
       vm.$store.dispatch('identities/update');
       vm.$store.dispatch('nicknames/update');
+      vm.$store.dispatch('stakingIdentities/update');
     }, 10000);
 
     // Update account indexes every 1 min
@@ -204,25 +277,27 @@ export default {
     clearInterval(this.pollingIndexes);
   },
   methods: {
-    getIndex(validator) {
-      // Receives validator accountId
-      for (var i=0; i < this.favorites.length; i++) {
-        if (this.favorites[i].accountId == validator) {
-          return i;
-        }
-      }
-      return false;
+    getIdentity(stashId) {
+      let filteredArray =  this.$store.state.stakingIdentities.list.filter(obj => {
+        return obj.accountId === stashId
+      });
+      return filteredArray[0];
     },
     hasIdentity(stashId) {
-      return this.$store.state.identities.list.some(obj => {
-        return obj.stashId === stashId;
+      return this.$store.state.stakingIdentities.list.some(obj => {
+        return obj.accountId === stashId;
       });
     },
-    getIdentity(stashId) {
+    getPolkStatsIdentity(stashId) {
       let filteredArray =  this.$store.state.identities.list.filter(obj => {
         return obj.stashId === stashId
       });
       return filteredArray[0];
+    },
+    hasPolkStatsIdentity(stashId) {
+      return this.$store.state.identities.list.some(obj => {
+        return obj.stashId === stashId;
+      });
     },
     hasNickname(accountId) {
       return this.$store.state.nicknames.list.some(obj => {
