@@ -209,7 +209,7 @@
         <!-- START FAVORITE INTENTIONS -->
         <template  v-for="(validator, index) in intentions">
           <template v-if="isFavorite(validator.accountId)">
-            <div class="validator card mb-3">
+            <div class="validator card mb-3" v-bind:key="validator.accountId">
               <a class="favorite" v-on:click="toggleFavorite(validator.accountId)">
                 <i v-if="isFavorite(validator.accountId)" class="fas fa-star" style="color: #f1bd23" v-b-tooltip.hover title="Unset as Favorite"></i>
                 <i v-else class="fas fa-star" style="color: #e6dfdf;" v-b-tooltip.hover title="Set as Favorite"></i>
@@ -688,5 +688,13 @@ body {
   left: 2rem;
   font-size: 1.1rem;
   color: red;
+}
+@media (max-width: 767px) {
+  .card {
+    border-radius: 0.8rem;
+    box-shadow: 1px 1px 2px 2px #a2a6a8;
+    padding: 0.5rem 0.5rem;
+    margin: 1rem 0;
+  }
 }
 </style>
