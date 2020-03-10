@@ -62,32 +62,50 @@
             </template>
             <template slot="accountId" slot-scope="data">
               <div class="d-block d-sm-block d-md-none d-lg-none d-xl-none text-center">
-                <p class="mb-2">
-                  rank #{{ data.item.rank }}
-                </p>
-                <Identicon :value="data.item.accountId" :size="40" :theme="'polkadot'" :key="data.item.accountId" />
-                <nuxt-link :to="{name: 'account', query: { accountId: data.item.accountId } }" title="Account details">
-                  <h4>{{ data.item.accountIndex }}</h4>
-                </nuxt-link>
-                <p class="mb-0" v-if="data.item.identity.display">
-                  {{ data.item.identity.display }}
-                </p>
-                <table class="table table-striped mt-4">
-                  <tbody>
-                    <tr>
-                      <td class="text-left"><strong>Free Balance</strong></td>
-                      <td class="text-right">{{ formatAmount(data.item.freeBalance) }}</td>
-                    </tr>
-                    <tr>
-                      <td class="text-left"><strong>Available Balance</strong></td>
-                      <td class="text-right">{{ formatAmount(data.item.availableBalance) }}</td>
-                    </tr>
-                    <tr>
-                      <td class="text-left"><strong>Locked Balance</strong></td>
-                      <td class="text-right">{{ formatAmount(data.item.lockedBalance) }}</td>
-                    </tr>
-                  </tbody>
-                </table>
+                <b-row>
+                  <b-col cols="2" class="rank">
+                    <span>#{{ data.item.rank }}</span>
+                  </b-col>
+                  <b-col cols="3" align-self="center">
+                    <div class="left">
+                      <Identicon :value="data.item.accountId" :size="80" :theme="'polkadot'" :key="data.item.accountId" />
+                    </div>
+                  </b-col>
+                  <b-col cols="7" align-self="center">
+                    <nuxt-link :to="{name: 'account', query: { accountId: data.item.accountId } }" title="Account details">
+                      <h4>{{ data.item.accountIndex }}</h4>
+                    </nuxt-link>
+                    <p class="mb-0" v-if="data.item.identity.display">
+                      {{ data.item.identity.display }}
+                    </p>
+                    <b-container>
+                      <b-row>
+                        <b-col class="block-left">
+                          <span><strong>Free Balance</strong></span>
+                        </b-col>
+                        <b-col class="block-right">
+                          <span>{{ formatAmount(data.item.freeBalance) }}</span>
+                        </b-col>
+                      </b-row>
+                      <b-row>
+                        <b-col class="block-left">
+                          <span><strong>Available Balance</strong></span>
+                        </b-col>
+                        <b-col class="block-right">
+                          <span>{{ formatAmount(data.item.availableBalance) }}</span>
+                        </b-col>
+                      </b-row>
+                      <b-row>
+                        <b-col class="block-left">
+                          <span><strong>Locked Balance</strong></span>
+                        </b-col>
+                        <b-col class="block-right">
+                          <span>{{ formatAmount(data.item.lockedBalance) }}</span>
+                        </b-col>
+                      </b-row>
+                    </b-container>
+                  </b-col>
+                </b-row>
               </div>
               <div class="d-none d-sm-none d-md-block d-lg-block d-xl-block">
                 <Identicon :value="data.item.accountId" :size="20" :theme="'polkadot'" :key="data.item.accountId" />
@@ -277,6 +295,36 @@ export default {
 }
 
 .page-accounts td div {
-  padding: 0 !important;
+  padding: 0;
+}
+@media (max-width: 767px) {
+  #accounts-table {
+    background-color: transparent;
+  }
+  #accounts-table tr {
+    border-radius: 0.8rem;
+    box-shadow: 1px 1px 2px 2px #a2a6a8;
+    padding: 1rem 0.5rem;
+    margin: 1rem 0;
+  }
+  .rank {
+    margin-top: -0.5rem;
+    margin-left: -0.5rem;
+  }
+  .account-data {
+    padding: 0.5rem;
+    width: 95%;
+  }
+  .left {
+    text-align: left;
+  }
+  .block-left {
+    text-align: right;
+    margin-right: 1rem;
+  }
+  .block-right {
+    text-align: left;
+    margin-left: 0.5rem;
+  }
 }
 </style>
