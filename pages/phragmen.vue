@@ -62,36 +62,42 @@
             </template>
             <template slot="pub_key_stash" slot-scope="data">
               <div class="d-block d-sm-block d-md-none d-lg-none d-xl-none text-center">
-                <div v-if="hasIdentity(data.item.pub_key_stash)">
-                  <div v-if="getIdentity(data.item.pub_key_stash).logo !== ''">
-                    <img v-bind:src="getIdentity(data.item.pub_key_stash).logo" class="identity mt-2" />
-                  </div>
-                </div>
-                <div v-else>
-                  <Identicon :value="data.item.pub_key_stash" :size="80" :theme="'polkadot'" :key="data.item.pub_key_stash" />
-                </div>
-                <nuxt-link :to="{name: 'phragmen-candidate', query: { accountId: data.item.pub_key_stash } }" title="Candidate details">
-                  <h4 v-if="hasIdentity(data.item.pub_key_stash)" class="mt-2 mb-2">
-                    {{ getIdentity(data.item.pub_key_stash).full_name }}
-                  </h4>
-                  <h4 v-else-if="hasKusamaIdentity(data.item.pub_key_stash)" class="mt-2 mb-2">
-                    {{ hasKusamaIdentity(data.item.pub_key_stash).display }}
-                  </h4>
-                  <h4 v-else class="mt-2 mb-2">
-                    <span class="d-inline d-sm-inline d-md-inline d-lg-inline d-xl-none">{{ indexes[data.item.pub_key_stash] }}</span>
-                    <span class="d-none d-sm-none d-md-none d-lg-none d-xl-inline">{{ indexes[data.item.pub_key_stash] }}</span>
-                  </h4>
-                </nuxt-link>
-                <p class="mt-2 mb-2 rank">
-                  rank #{{ data.item.rank }}
-                </p>
-                <p class="bonded mb-0" v-b-tooltip.hover title="Total stake">{{ formatAmount(data.item.stake_total) }}</p>
-                <p class="mb-0">
-                  <small>
-                    <span v-b-tooltip.hover title="Self bonded">{{ formatAmount(data.item.stake_validator) }}</span>
-                    <span v-b-tooltip.hover title="Bonded by nominators">(+{{ formatAmount(data.item.other_stake_sum) }})</span>
-                  </small>
-                </p>
+                <b-row>
+                  <b-col cols="2" class="rank">
+                    <span>#{{ data.item.rank }}</span>
+                  </b-col>
+                  <b-col cols="3" align-self="center">
+                    <div v-if="hasIdentity(data.item.pub_key_stash)">
+                      <div v-if="getIdentity(data.item.pub_key_stash).logo !== ''">
+                        <img v-bind:src="getIdentity(data.item.pub_key_stash).logo" class="identity mt-2" />
+                      </div>
+                    </div>
+                    <div v-else>
+                      <Identicon :value="data.item.pub_key_stash" :size="80" :theme="'polkadot'" :key="data.item.pub_key_stash" />
+                    </div>
+                  </b-col>
+                  <b-col cols="7" align-self="center">
+                    <nuxt-link :to="{name: 'phragmen-candidate', query: { accountId: data.item.pub_key_stash } }" title="Candidate details">
+                      <h4 v-if="hasIdentity(data.item.pub_key_stash)" class="mt-2 mb-2">
+                        {{ getIdentity(data.item.pub_key_stash).full_name }}
+                      </h4>
+                      <h4 v-else-if="hasKusamaIdentity(data.item.pub_key_stash)" class="mt-2 mb-2">
+                        {{ hasKusamaIdentity(data.item.pub_key_stash).display }}
+                      </h4>
+                      <h4 v-else class="mt-2 mb-2">
+                        <span class="d-inline d-sm-inline d-md-inline d-lg-inline d-xl-none">{{ indexes[data.item.pub_key_stash] }}</span>
+                        <span class="d-none d-sm-none d-md-none d-lg-none d-xl-inline">{{ indexes[data.item.pub_key_stash] }}</span>
+                      </h4>
+                    </nuxt-link>
+                    <p class="bonded mb-0" v-b-tooltip.hover title="Total stake">{{ formatAmount(data.item.stake_total) }}</p>
+                    <p class="mb-0">
+                      <small>
+                        <span v-b-tooltip.hover title="Self bonded">{{ formatAmount(data.item.stake_validator) }}</span>
+                        <span v-b-tooltip.hover title="Bonded by nominators">(+{{ formatAmount(data.item.other_stake_sum) }})</span>
+                      </small>
+                    </p>
+                  </b-col>
+                </b-row>
               </div>
               <div class="d-none d-sm-none d-md-block d-lg-block d-xl-block">
                 <div v-if="hasIdentity(data.item.pub_key_stash)" class="d-inline-block">
@@ -441,5 +447,22 @@ body {
 }
 .identity {
   max-width: 80px;
+}
+@media (max-width: 767px) {
+  #candidates-table {
+    background-color: transparent;
+    padding: 0 0.5rem;
+  }
+  #candidates-table tr {
+    border-radius: 0.8rem;
+    box-shadow: 1px 1px 2px 2px #a2a6a8;
+    padding: 1rem 0.5rem;
+    margin: 1rem 0;
+  }
+  .rank {
+    text-align: left;
+    margin-top: -0.5rem;
+    margin-left: -0.5rem;
+  }
 }
 </style>

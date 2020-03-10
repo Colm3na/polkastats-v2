@@ -516,13 +516,12 @@ body {
   #intentions-table tr {
     border-radius: 0.8rem;
     box-shadow: 1px 1px 2px 2px #a2a6a8;
-    padding: 0.5rem 0.5rem 1rem;
+    padding: 1rem 0.5rem;
     margin: 1rem 0;
   }
   .rank {
     text-align: left;
-    font-size: 1.1rem;
+    margin-top: -0.5rem;
   }
 }
-
 </style>
