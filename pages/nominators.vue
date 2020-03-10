@@ -59,22 +59,28 @@
             </template>
             <template slot="accountId" slot-scope="data">
               <div class="d-block d-sm-block d-md-none d-lg-none d-xl-none text-center">
-                <Identicon :value="data.item.accountId" :size="20" :theme="'polkadot'" :key="data.item.accountId" />
-                <nuxt-link :to="{name: 'nominator', query: { accountId: data.item.accountId } }" title="Nominator details">
-                  <span v-if="hasKusamaIdentity(data.item.accountId)">
-                    {{ getKusamaIdentity(data.item.accountId).display }}
-                  </span>
-                  <span v-else>
-                    <span class="d-inline d-sm-inline d-md-inline d-lg-inline d-xl-none">{{ indexes[data.item.accountId] }}</span>
-                    <span class="d-none d-sm-none d-md-none d-lg-none d-xl-inline">{{ indexes[data.item.accountId] }}</span>
-                  </span>
-                </nuxt-link>
-                <p class="mt-2 mb-2">
-                  rank #{{ data.item.rank }}
-                </p>
-                <p class="mb-0">
-                  {{ formatAmount(data.item.totalStake) }}
-                </p>
+                <b-row>
+                  <b-col cols="2" class="rank">
+                    <span>#{{ data.item.rank }}</span>
+                  </b-col>
+                  <b-col cols="3" align-self="center">
+                    <Identicon :value="data.item.accountId" :size="80" :theme="'polkadot'" :key="data.item.accountId" />
+                  </b-col>
+                  <b-col cols="7" align-self="center">
+                    <nuxt-link :to="{name: 'nominator', query: { accountId: data.item.accountId } }" title="Nominator details">
+                      <h4 v-if="hasKusamaIdentity(data.item.accountId)">
+                        {{ getKusamaIdentity(data.item.accountId).display }}
+                      </h4>
+                      <h4 v-else>
+                        <span class="d-inline d-sm-inline d-md-inline d-lg-inline d-xl-none">{{ indexes[data.item.accountId] }}</span>
+                        <span class="d-none d-sm-none d-md-none d-lg-none d-xl-inline">{{ indexes[data.item.accountId] }}</span>
+                      </h4>
+                    </nuxt-link>
+                    <p class="mb-0">
+                      {{ formatAmount(data.item.totalStake) }}
+                    </p>
+                  </b-col>              
+                </b-row>
               </div>
               <div class="d-none d-sm-none d-md-block d-lg-block d-xl-block">
                 <Identicon :value="data.item.accountId" :size="20" :theme="'polkadot'" :key="data.item.accountId" />
@@ -381,5 +387,22 @@ export default {
 }
 #nominators-table .identicon div {
   display: inline;
+}
+@media (max-width: 767px) {
+  #nominators-table {
+    background-color: transparent;
+    padding: 0 0.5rem;
+  }
+  #nominators-table tr {
+    border-radius: 0.8rem;
+    box-shadow: 1px 1px 2px 2px #a2a6a8;
+    padding: 1rem 0.5rem;
+    margin: 1rem 0;
+  }
+  .rank {
+    text-align: left;
+    margin-top: -0.5rem;
+    margin-left: -0.5rem;
+  }
 }
 </style>
