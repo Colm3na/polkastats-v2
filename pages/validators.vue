@@ -3,26 +3,81 @@
     <section>
       <b-container id="page-index" class="main pt-4">
         <!-- Filter -->
-        <b-row>
-          <b-col lg="12" class="mb-4">
+        <b-row style="margin-bottom: 1rem">
+          <b-col cols="10">
             <b-form-input
               v-model="filter"
               type="search"
               id="filterInput"
               placeholder="Search validator by account, account index, identity display name or keybase name"
-            ></b-form-input>
+            />
+          </b-col>
+          <b-col cols="auto">
+            <b-button v-b-toggle.collapse-filter class="filter-button" @click="handleFilter()">
+              <font-awesome-icon
+                :icon="['fas', 'filter']"
+                :style="{
+                  color: '#d75ea1',
+                  width: '15px',
+                  height: '15px',
+                }"
+              />
+            </b-button>
           </b-col>
         </b-row>
-        <b-dropdown
-          id="dropdown"
-          variant="outline"
-          text="Show Nº Items"
-          class="dropdow"
-        >
-          <b-dropdown-item @click="handleNumFields(10)">10</b-dropdown-item>
-          <b-dropdown-item @click="handleNumFields(20)">20</b-dropdown-item>
-          <b-dropdown-item @click="handleNumFields(50)">50</b-dropdown-item>
-        </b-dropdown>
+        <b-row style="margin-bottom: 1rem">
+          <b-container>
+            <b-collapse id="collapse-filter" class="w-100">
+              <b-card>
+                <b-row>
+                  <b-col cols="2" class="filter-label">
+                    <span>Filter</span>
+                  </b-col>
+                  <b-col>
+                    <b-form-select
+                      v-model="filterField"
+                      id="filter1"
+                      class="filters"
+                      :options="filterFieldsOptions"
+                    />
+                  </b-col>
+                </b-row>
+                <b-row>
+                  <b-col cols="2" class="filter-label">
+                    <span style="font-size: 1rem">where</span>
+                  </b-col>
+                  <b-col>
+                    <b-form-select
+                      v-model="filterOperator"
+                      class="filters"
+                      :options="filterOperatorsOptions"
+                    />
+                  </b-col>
+                </b-row>
+                <b-row>
+                  <b-col cols="2" class="filter-label">
+                    <span style="font-size: 1rem">than</span>
+                  </b-col>
+                  <b-col>
+                    <b-form-input v-model="filterText" class="filters" />
+                  </b-col>
+                </b-row>
+                  <div class="filter-trash-button-container">
+                    <b-button class="filter-trash-button" @click="resetFilter()">
+                      <font-awesome-icon
+                        :icon="['fas', 'trash']"
+                        :style="{
+                          color: '#d75ea1',
+                          width: '15px',
+                          height: '15px'
+                        }"
+                      />
+                    </b-button>
+                  </div>
+              </b-card>
+            </b-collapse>
+          </b-container>
+        </b-row>
 
         <!-- Mobile sorting -->
         <div class="row d-block d-sm-block d-md-block d-lg-none d-xl-none">
@@ -59,6 +114,7 @@
             </b-form-group>
           </b-col>
         </div>
+
         <!-- Table with sorting and pagination-->
         <div class="table-responsive">
           <b-table
@@ -66,7 +122,7 @@
             id="validators-table"
             head-variant="dark"
             :fields="fields"
-            :items="validators"
+            :items="filteredValidators"
             :per-page="perPage"
             :current-page="currentPage"
             :sort-by.sync="sortBy"
@@ -432,6 +488,11 @@ export default {
       sortDesc: false,
       filter: null,
       filterOn: [],
+      filterField: null,
+      filterOperator: null,
+      filterText: null,
+      filterFieldsOptions: ["Stakers", "Total Stake", "% Stake", "Commission"],
+      filterOperatorsOptions: [">", "=", "<"],
       totalRows: 1,
       fields: [
         // ≥
@@ -498,6 +559,88 @@ export default {
   computed: {
     network() {
       return this.$store.state.network.info;
+    },
+    filteredValidators() {
+      const getStake = value => {
+        const stake = commonMixin.methods.formatAmount(value);
+        const float = stake.toString().includes("k")
+          ? parseFloat(stake) * 1000
+          : parseFloat(stake);
+
+        return parseInt(float);
+      };
+
+      // No filters
+      if (this.filterOn.length === 0 || !!!this.filterField || !!!this.filterOperator || !!!this.filterText) return this.validators;
+
+      // Filtering by Number of Stakers
+      if (this.filterField === "Stakers") {
+        const filtering = parseInt(this.filterText);
+
+        if (this.filterOperator === ">")
+          return this.validators.filter(
+            validator => validator["numStakers"] > filtering
+          );
+        else if (this.filterOperator === "=")
+          return this.validators.filter(
+            validator => validator["numStakers"] === filtering
+          );
+        return this.validators.filter(
+          validator => validator["numStakers"] < filtering
+        );
+      }
+
+      // Filtering by Total Stake
+      else if (this.filterField === "Total Stake") {
+        const filtering = this.filterText.toString().includes(".")
+          ? parseFloat(this.filterText) * 1000
+          : parseInt(this.filterText);
+
+        if (this.filterOperator === ">")
+          return this.validators.filter(
+            validator => getStake(validator.stake) > filtering
+          );
+        else if (this.filterOperator === "=")
+          return this.validators.filter(
+            validator => getStake(validator.stake) === filtering
+          );
+        return this.validators.filter(
+          validator => getStake(validator.stake) < filtering
+        );
+      }
+
+      // Filtering by & Stake
+      else if (this.filterField === "% Stake") {
+        const filtering = parseFloat(this.filterText).toFixed(2);
+
+        if (this.filterOperator === ">")
+          return this.validators.filter(
+            validator => parseFloat(validator["percent"]).toFixed(2) > filtering
+          );
+        else if (this.filterOperator === "=")
+          return this.validators.filter(
+            validator =>
+              parseFloat(validator["percent"]).toFixed(2) === filtering
+          );
+        return this.validators.filter(
+          validator => parseFloat(validator["percent"]).toFixed(2) < filtering
+        );
+      }
+
+      // Filtering by Commission
+      else if (this.filterField === "Commission") {
+        const filtering = parseFloat(this.filterText) * 10000000;
+
+        if (this.filterOperator === ">")
+          return this.validators.filter(
+            validator => parseFloat(validator["commission"]) > filtering
+          );
+        else if (this.filterOperator === "=")
+          return parseFloat(validator["commission"]) === filtering;
+        return this.validators.filter(
+          validator => parseFloat(validator["commission"]) < filtering
+        );
+      }
     },
     validators() {
       let validatorsObject = [];
@@ -645,6 +788,15 @@ export default {
     clearInterval(this.pollingIndexes);
   },
   methods: {
+    handleFilter() {
+      this.filter = "";
+    },
+    resetFilter() {
+      this.filterField = null;
+      this.filterOperator = null;
+      this.filterText = null;
+      this.filterOn.length = 0;
+    },
     handleNumFields(num) {
       this.perPage = num;
     },
@@ -725,7 +877,10 @@ export default {
         path: "/",
         maxAge: 60 * 60 * 24 * 7
       });
-    }
+    },
+    filterField: function() {
+      this.filterOn[0] = this.filterField;
+    },
   },
   components: {
     Identicon,
@@ -800,6 +955,24 @@ body {
   color: #d75ea1;
   font-size: 0.9rem;
   margin-left: 0.1rem;
+}
+.filters {
+  margin: 5px 10px;
+}
+.filter-label {
+  font-size: 1rem;
+  padding: 0.5rem;
+}
+.filter-button {
+  background-color: white;
+}
+.filter-trash-button-container {
+  text-align: right;
+}
+.filter-trash-button {
+  background-color: white;
+  font-size: 0.6rem;
+  margin-top: 0.5rem;
 }
 .identity {
   max-width: 80px;
