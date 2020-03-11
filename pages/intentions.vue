@@ -64,17 +64,22 @@
             <template slot="accountId" slot-scope="data">
               <div class="d-block d-sm-block d-md-none d-lg-none d-xl-none text-center">
                 <b-row>
-                  <b-col cols="2" class="rank">
-                    <span>#{{ data.item.rank }}</span>
+                  <b-col cols="2" class="rank-position">
+                    <span class="rank-text">#{{ data.item.rank }}</span>
                   </b-col>
                   <b-col cols="3" align-self="center">
                     <div v-if="hasIdentity(data.item.accountId)">
                       <div v-if="getIdentity(data.item.accountId).logo !== ''">
-                        <img v-bind:src="getIdentity(data.item.accountId).logo" class="identity mt-2" />
+                        <img
+                          v-bind:src="getIdentity(data.item.accountId).logo"
+                          class="identity mt-2"
+                          :widht="identiconSize"
+                          :height="identiconSize"
+                        />
                       </div>
                     </div>
                     <div v-else>
-                      <Identicon :value="data.item.accountId" :size="80" :theme="'polkadot'" :key="data.item.accountId" />
+                      <Identicon :value="data.item.accountId" :size="identiconSize" :theme="'polkadot'" :key="data.item.accountId" />
                     </div>                
                   </b-col>
                   <b-col cols="7" align-self="center">          
@@ -265,6 +270,9 @@ export default {
         .map(f => {
           return { text: f.label, value: f.key }
         })
+    },
+    identiconSize() {
+      return window.innerWidth <= 320 ? "50" : "60";
     }
   },
   created: function () {
@@ -519,9 +527,16 @@ body {
     padding: 1rem 0.5rem;
     margin: 1rem 0;
   }
-  .rank {
+  .rank-position {
     text-align: left;
-    margin-top: -0.5rem;
+    padding-left: 1rem;
+  }
+  .rank-text {
+    font-size: 0.8rem;
+    color: #7d7378;
+    text-overflow: clip;
+    overflow: hidden;
+    white-space: nowrap;
   }
 }
 </style>

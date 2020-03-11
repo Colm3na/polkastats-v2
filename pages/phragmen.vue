@@ -63,17 +63,22 @@
             <template slot="pub_key_stash" slot-scope="data">
               <div class="d-block d-sm-block d-md-none d-lg-none d-xl-none text-center">
                 <b-row>
-                  <b-col cols="2" class="rank">
-                    <span>#{{ data.item.rank }}</span>
+                  <b-col cols="2">
+                    <span class="rank-text">#{{ data.item.rank }}</span>
                   </b-col>
                   <b-col cols="3" align-self="center">
                     <div v-if="hasIdentity(data.item.pub_key_stash)">
                       <div v-if="getIdentity(data.item.pub_key_stash).logo !== ''">
-                        <img v-bind:src="getIdentity(data.item.pub_key_stash).logo" class="identity mt-2" />
+                        <img
+                          v-bind:src="getIdentity(data.item.pub_key_stash).logo"
+                          class="identity mt-2"
+                          :widht="identiconSize"
+                          :height="identiconSize"
+                        />
                       </div>
                     </div>
                     <div v-else>
-                      <Identicon :value="data.item.pub_key_stash" :size="80" :theme="'polkadot'" :key="data.item.pub_key_stash" />
+                      <Identicon :value="data.item.pub_key_stash" :size="identiconSize" :theme="'polkadot'" :key="data.item.pub_key_stash" />
                     </div>
                   </b-col>
                   <b-col cols="7" align-self="center">
@@ -255,6 +260,9 @@ export default {
         .map(f => {
           return { text: f.label, value: f.key }
         });
+    },
+    identiconSize() {
+      return window.innerWidth <= 320 ? "50" : "60";
     }
   },
   created: function () {
@@ -459,10 +467,12 @@ body {
     padding: 1rem 0.5rem;
     margin: 1rem 0;
   }
-  .rank {
+  .rank-text {
     text-align: left;
     margin-top: -0.5rem;
     margin-left: -0.5rem;
+    color: #7d7378;
+    font-size: 0.8rem;
   }
 }
 </style>

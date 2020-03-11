@@ -12,7 +12,7 @@
         <!-- START FAVORITE VALIDATORS -->
         <template  v-for="(validator, index) in validators">
           <template v-if="isFavorite(validator.accountId)">
-            <div class="validator card mb-3">
+            <div class="validator card mb-3" v-bind:key="validator.accountId">
               <i v-if="validator.imOnline.isOnline" class="imOnline fas fa-check-circle" v-b-tooltip.hover v-bind:title="getImOnlineMessage(validator)"></i>
               <i v-else class="imOffline fas fa-times-circle" v-b-tooltip.hover v-bind:title="getImOnlineMessage(validator)"></i>
               <i v-if="validator.currentElected" class="elected fas fa-chevron-circle-right" v-b-tooltip.hover title="Elected for next session"></i>
@@ -40,7 +40,7 @@
                     <div v-else>
                       <Identicon :value="validator.accountId" :size="80" :theme="'polkadot'" :key="validator.accountId" />
                     </div>
-                    <p class="mt-3 mb-0 rank">
+                    <p class="mt-3 mb-0 ranking">
                       rank #{{ index+1 }} <i class="fas fa-shield-alt" v-b-tooltip.hover title="Active validator"></i>
                     </p>
                     <p v-if="validator.stakers.total > 0" class="bonded mb-0" v-b-tooltip.hover title="Total bonded">{{ formatAmount(validator.stakers.total) }}</p>
@@ -596,7 +596,7 @@ body {
 .validator .bg-candidate {
   background-color: rgba(21, 240, 86, 0.12) !important;
 }
-.rank {
+.ranking {
   font-size: 1.6rem;
   color: #7d7378;
 }

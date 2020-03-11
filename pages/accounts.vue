@@ -40,7 +40,7 @@
           </b-col>
         </div>
         <!-- Table with sorting and pagination-->
-        <div>
+        <div> 
           <b-table
             stacked="md"
             id="accounts-table"
@@ -63,12 +63,12 @@
             <template slot="accountId" slot-scope="data">
               <div class="d-block d-sm-block d-md-none d-lg-none d-xl-none text-center">
                 <b-row>
-                  <b-col cols="2" class="rank">
-                    <span>#{{ data.item.rank }}</span>
+                  <b-col cols="2" class="rank-position">
+                    <span class="rank-text">#{{ data.item.rank }}</span>
                   </b-col>
                   <b-col cols="3" align-self="center">
                     <div class="left">
-                      <Identicon :value="data.item.accountId" :size="80" :theme="'polkadot'" :key="data.item.accountId" />
+                      <Identicon :value="data.item.accountId" :size="identiconSize" :theme="'polkadot'" :key="data.item.accountId" />
                     </div>
                   </b-col>
                   <b-col cols="7" align-self="center">
@@ -78,7 +78,7 @@
                     <p class="mb-0" v-if="data.item.identity.display">
                       {{ data.item.identity.display }}
                     </p>
-                    <b-container>
+                    <b-container style="font-size: 0.6rem">
                       <b-row>
                         <b-col class="block-left">
                           <span><strong>Free Balance</strong></span>
@@ -188,7 +188,8 @@ export default {
         { key: 'favorite', label: '⭐', sortable: true, class: `d-none d-sm-none d-md-table-cell d-lg-table-cell d-xl-table-cell` }
       ],
       favorites: [],
-      polling: null
+      polling: null,
+      loading: true,
     }
   },
   computed: {
@@ -213,6 +214,9 @@ export default {
         .map(f => {
           return { text: f.label, value: f.key }
         });
+    },
+    identiconSize() {
+      return window.innerWidth <= 320 ? "50" : "60";
     }
   },
   created: function () {
@@ -271,6 +275,9 @@ export default {
       // Trigger pagination to update the number of buttons/pages due to filtering
       this.totalRows = filteredItems.length
       this.currentPage = 1
+    },
+    isSmallWidth() {
+      return window.innerWidth <= 320;
     }
   },
   watch: {
@@ -293,7 +300,6 @@ export default {
 .page-accounts .identicon{
   display: inline-block;
 }
-
 .page-accounts td div {
   padding: 0;
 }
@@ -307,9 +313,14 @@ export default {
     padding: 1rem 0.5rem;
     margin: 1rem 0;
   }
-  .rank {
+  .rank-position {
+    color: #7d7378;
     margin-top: -0.5rem;
-    margin-left: -0.5rem;
+    text-align: left;
+  }
+  .rank-text {
+    font-size: 0.8rem;
+    padding-left: 0.5rem;
   }
   .account-data {
     padding: 0.5rem;
@@ -320,7 +331,7 @@ export default {
   }
   .block-left {
     text-align: right;
-    margin-right: 1rem;
+    margin-right: 0.5rem;
   }
   .block-right {
     text-align: left;

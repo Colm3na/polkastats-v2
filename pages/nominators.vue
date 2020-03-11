@@ -60,11 +60,11 @@
             <template slot="accountId" slot-scope="data">
               <div class="d-block d-sm-block d-md-none d-lg-none d-xl-none text-center">
                 <b-row>
-                  <b-col cols="2" class="rank">
-                    <span>#{{ data.item.rank }}</span>
+                  <b-col cols="2">
+                    <span class="rank-text">#{{ data.item.rank }}</span>
                   </b-col>
                   <b-col cols="3" align-self="center">
-                    <Identicon :value="data.item.accountId" :size="80" :theme="'polkadot'" :key="data.item.accountId" />
+                    <Identicon :value="data.item.accountId" :size="identiconSize" :theme="'polkadot'" :key="data.item.accountId" />
                   </b-col>
                   <b-col cols="7" align-self="center">
                     <nuxt-link :to="{name: 'nominator', query: { accountId: data.item.accountId } }" title="Nominator details">
@@ -252,6 +252,9 @@ export default {
         .map(f => {
           return { text: f.label, value: f.key }
         })
+    },
+    identiconSize() {
+      return window.innerWidth <= 320 ? "50" : "60";
     }
   },
   created: function () {
@@ -399,10 +402,11 @@ export default {
     padding: 1rem 0.5rem;
     margin: 1rem 0;
   }
-  .rank {
+  .rank-text {
     text-align: left;
     margin-top: -0.5rem;
     margin-left: -0.5rem;
+    font-size: 0.8rem;
   }
 }
 </style>
