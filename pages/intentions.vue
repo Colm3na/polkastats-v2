@@ -57,50 +57,61 @@
             @filtered="onFiltered"
           >
             <template slot="rank" slot-scope="data">
-              <p class="text-right mb-0">
+              <span class="text-right mb-0">
                 {{ data.item.rank }}
-              </p>
+              </span>
             </template>
             <template slot="accountId" slot-scope="data">
               <div class="d-block d-sm-block d-md-none d-lg-none d-xl-none text-center">
-                <div v-if="hasIdentity(data.item.accountId)">
-                  <div v-if="getIdentity(data.item.accountId).logo !== ''">
-                    <img v-bind:src="getIdentity(data.item.accountId).logo" class="identity mt-2" />
-                    <h4 class="mt-2 mb-2" v-if="getIdentity(data.item.accountId).full_name !== ''">{{ getIdentity(data.item.accountId).full_name }}</h4>
+                <b-row>
+                  <b-col cols="2" class="rank-position">
+                    <span class="rank-text">#{{ data.item.rank }}</span>
+                  </b-col>
+                  <b-col cols="3" align-self="center">
+                    <div v-if="hasIdentity(data.item.accountId)">
+                      <div v-if="getIdentity(data.item.accountId).logo !== ''">
+                        <img
+                          v-bind:src="getIdentity(data.item.accountId).logo"
+                          class="identity mt-2"
+                          :widht="identiconSize"
+                          :height="identiconSize"
+                        />
+                      </div>
+                    </div>
+                    <div v-else>
+                      <Identicon :value="data.item.accountId" :size="identiconSize" :theme="'polkadot'" :key="data.item.accountId" />
+                    </div>                
+                  </b-col>
+                  <b-col cols="7" align-self="center">          
+                    <nuxt-link :to="{name: 'intention', query: { accountId: data.item.accountId } }" title="Intention details">
+                      <h4 v-if="hasIdentity(data.item.accountId)" class="mt-2 mb-2">
+                        {{ getIdentity(data.item.accountId).full_name }}
+                      </h4>
+                      <h4 v-else-if="hasKusamaIdentity(data.item.accountId)" class="mt-2 mb-2">
+                        {{ hasKusamaIdentity(data.item.accountId).display }}
+                      </h4>
+                      <h4 v-else class="mt-2 mb-2">
+                        <span class="d-inline d-sm-inline d-md-inline d-lg-inline d-xl-none">{{ indexes[data.item.accountId] }}</span>
+                        <span class="d-none d-sm-none d-md-none d-lg-none d-xl-inline">{{ indexes[data.item.accountId] }}</span>
+                      </h4>
+                    </nuxt-link>
+                  <div v-if="data.item.activeStake">
+                    <p class="bonded mb-0" v-b-tooltip.hover title="Active bonded">
+                      {{ formatAmount(data.item.activeStake) }}
+                    </p>
                   </div>
-                </div>
-                <div v-else>
-                  <Identicon :value="data.item.accountId" :size="80" :theme="'polkadot'" :key="data.item.accountId" />
-                </div>
-                <nuxt-link :to="{name: 'intention', query: { accountId: data.item.accountId } }" title="Intention details">
-                  <h4 v-if="hasIdentity(data.item.accountId)" class="mt-2 mb-2">
-                    {{ getIdentity(data.item.accountId).full_name }}
-                  </h4>
-                  <h4 v-else-if="hasKusamaIdentity(data.item.accountId)" class="mt-2 mb-2">
-                    {{ hasKusamaIdentity(data.item.accountId).display }}
-                  </h4>
-                  <h4 v-else class="mt-2 mb-2">
-                    <span class="d-inline d-sm-inline d-md-inline d-lg-inline d-xl-none">{{ indexes[data.item.accountId] }}</span>
-                    <span class="d-none d-sm-none d-md-none d-lg-none d-xl-inline">{{ indexes[data.item.accountId] }}</span>
-                  </h4>
-                </nuxt-link>
-                <p class="mt-3 mb-0 rank">
-                  rank #{{ data.item.rank }}
-                </p>
-                <div v-if="data.item.activeStake">
-                  <p class="bonded mb-0" v-b-tooltip.hover title="Active bonded">
-                    {{ formatAmount(data.item.activeStake) }}
-                  </p>
-                </div>
-                <div v-if="data.item.totalStake">
-                  <p class="mb-0">
-                    <small>
-                      <span v-b-tooltip.hover title="Total bonded">
-                        {{ formatAmount(data.item.totalStake) }}
-                      </span>
-                    </small>
-                  </p>
-                </div>
+                  <div v-if="data.item.totalStake">
+                    <p class="mb-0">
+                      <small>
+                        <span v-b-tooltip.hover title="Total bonded">
+                          {{ formatAmount(data.item.totalStake) }}
+                        </span>
+                      </small>
+                    </p>
+                  </div>
+                  </b-col>
+                  
+                </b-row>
               </div>
               <div class="d-none d-sm-none d-md-block d-lg-block d-xl-block">
                 <div v-if="hasIdentity(data.item.accountId)" class="d-inline-block">
@@ -259,6 +270,9 @@ export default {
         .map(f => {
           return { text: f.label, value: f.key }
         })
+    },
+    identiconSize() {
+      return window.innerWidth <= 320 ? "50" : "60";
     }
   },
   created: function () {
@@ -501,5 +515,28 @@ body {
     color: #343a40;
     background-color: #fff;
     border: 1px solid #dee2e6;
+}
+@media (max-width: 767px) {
+  #intentions-table {
+    background-color: transparent;
+    padding: 0 0.5rem;
+  }
+  #intentions-table tr {
+    border-radius: 0.8rem;
+    box-shadow: 1px 1px 2px 2px #a2a6a8;
+    padding: 1rem 0.5rem;
+    margin: 1rem 0;
+  }
+  .rank-position {
+    text-align: left;
+    padding-left: 1rem;
+  }
+  .rank-text {
+    font-size: 0.8rem;
+    color: #7d7378;
+    text-overflow: clip;
+    overflow: hidden;
+    white-space: nowrap;
+  }
 }
 </style>

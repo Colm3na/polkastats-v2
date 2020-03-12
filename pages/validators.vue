@@ -220,16 +220,19 @@
                           >
                             <img
                               v-bind:src="getIdentity(data.item.accountId).logo"
-                              class="identity mt-2"
+                              class="identity mt-3"
+                              :widht="identiconSize"
+                              :height="identiconSize"
+                              
                             />
                           </div>
                         </div>
                         <div v-else class="logo">
                           <Identicon
                             :value="data.item.accountId"
-                            :size="48"
                             :theme="'polkadot'"
                             :key="data.item.accountId"
+                            :size="identiconSize"
                           />
                         </div>
                       </nuxt-link>
@@ -729,6 +732,9 @@ export default {
         .map(f => {
           return { text: f.label, value: f.key };
         });
+    },
+    identiconSize() {
+      return window.innerWidth <= 320 ? "50" : "60";
     }
   },
   created: function() {
@@ -1087,12 +1093,6 @@ body {
     font-weight: 700;
     font-size: 1.3rem;
   }
-  #validators-table .logo {
-    position: relative;
-    top: 3em;
-    left: 10%;
-  }
-
   #validators-table .fullname {
     font-size: 3em;
     position: relative;
@@ -1136,6 +1136,9 @@ body {
 }
 
 @media (max-width: 470px) {
+  tr {
+    height: auto;
+  }
   td {
     border-top: 0;
   }
