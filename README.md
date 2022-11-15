@@ -2,6 +2,8 @@
 
 > Polkadot Kusama CC2 network statistics
 
+This repository is ARCHIVED, for latest version go to https://github.com/polkastats/polkastats
+
 ## Build frontend
 
 ``` bash
